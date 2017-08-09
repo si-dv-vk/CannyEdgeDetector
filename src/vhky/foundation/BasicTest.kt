@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
  * Created at 11:22 2017/8/1
  * @author VHKY
  */
-abstract class VKTestBase
+abstract class BasicTest
 {
 	@Test
 	fun antiCheat()

@@ -1,8 +1,9 @@
 package vhky.test
 
+import org.junit.jupiter.api.Test
 import vhky.algorithm.data.ImageData
 import vhky.algorithm.data.color.GrayScaleFactory
-import org.junit.jupiter.api.Test
+import vhky.foundation.BasicTest
 import java.util.*
 import kotlin.test.assertEquals
 
@@ -14,7 +15,7 @@ import kotlin.test.assertEquals
 
  * @author VHKY
  */
-internal class ImageDataTest
+internal class ImageDataTest : BasicTest()
 {
 	val random = Random(System.currentTimeMillis())
 	@Test

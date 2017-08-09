@@ -1,9 +1,5 @@
 package vhky.application
 
-import vhky.algorithm.CannyEdgeDetector
-import vhky.algorithm.EdgePreservingFilter
-import vhky.algorithm.data.ImageData
-import vhky.algorithm.data.color.GrayScaleFactory
 import javafx.application.Platform
 import javafx.embed.swing.SwingFXUtils
 import javafx.fxml.FXML
@@ -18,6 +14,9 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
+import vhky.algorithm.CannyEdgeDetector
+import vhky.algorithm.data.ImageData
+import vhky.algorithm.data.color.GrayScaleFactory
 import vhky.foundation.Controller
 import java.io.File
 import javax.imageio.ImageIO
@@ -30,7 +29,7 @@ class MainController : Controller()
 	{
 		fun Load() : MainController
 		{
-			val loader = FXMLLoader(this::class.java.getResource("/resource/fxml/main.fxml"))
+			val loader = FXMLLoader(this::class.java.getResource("/vhky/resource/fxml/main.fxml"))
 			val root = loader.load<VBox>()
 			return loader.getController<MainController>().apply { this.root = root }
 		}
@@ -55,7 +54,7 @@ class MainController : Controller()
 	private @FXML lateinit var prepare : Button
 	private @FXML lateinit var strongThreshold : TextField
 	private @FXML lateinit var weakThreshold : TextField
-	private val image = Image("/resource/picture/test.jpg")
+	private val image = Image("/vhky/resource/picture/test.jpg")
 	private val bottomPaneHeight by lazy { fuckIt.height + 20 }
 	fun init()
 	{
@@ -93,17 +92,16 @@ class MainController : Controller()
 	}
 	@FXML private fun onFuckIt()
 	{
-		/*temp?.let()
-		{*/
+		temp?.let()
+		{
 			val text = fuckIt.text
 			fuckIt.text = "Processing..."
 			fuckIt.isDisable = true
 			thread()
 			{
-				/*val _image = CannyEdgeDetector.postprocess(it,
+				val _image = CannyEdgeDetector.postprocess(it,
 						{ it[(it.size * strongThreshold.text.toDouble()).toInt()] to
-								it[(it.size * strongThreshold.text.toDouble()).toInt()] / weakThreshold.text.toDouble() }).toImage()*/
-				val _image = EdgePreservingFilter.process(ImageData.fromImage(leftImage.image, GrayScaleFactory), strongThreshold.text!!.toInt(), weakThreshold.text!!.toDouble()).toImage()
+								it[(it.size * strongThreshold.text.toDouble()).toInt()] / weakThreshold.text.toDouble() }).toImage()
 				Platform.runLater()
 				{
 					rightImage.image = _image
@@ -111,7 +109,7 @@ class MainController : Controller()
 					fuckIt.text = text
 				}
 			}
-		/*}*/
+		}
 	}
 	
 	var temp : CannyEdgeDetector.PreprocessResult? = null

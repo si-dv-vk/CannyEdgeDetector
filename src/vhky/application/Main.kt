@@ -11,7 +11,7 @@ class Main : Application()
 	{
 		main.stage = stage
 		stage.title = "Fuck"
-		stage.icons.add(Image("/resource/picture/icon.png"))
+		stage.icons.add(Image("/vhky/resource/picture/icon.png"))
 		stage.minHeight = stage.height
 		stage.minWidth = stage.width
 		
