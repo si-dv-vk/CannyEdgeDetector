@@ -1,6 +1,4 @@
 package vhky
-import vhky.application.Main
-import javafx.application.Application
 
 /**
  * No Description
@@ -11,5 +9,5 @@ import javafx.application.Application
 
 fun main(args : Array<String>)
 {
-	Application.launch(Main::class.java, *args)
+	(1..3).let { bound -> bound.flatMap { x -> bound.map { y -> x to y } } }.forEach { (x, y) -> println("($x, $y)") }
 }

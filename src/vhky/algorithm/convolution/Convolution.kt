@@ -1,7 +1,7 @@
 package vhky.algorithm.convolution
 
-import vhky.algorithm.data.ImageData
-import vhky.algorithm.data.color.GrayScaleFactory
+import vhky.algorithm.data.ColorChannel
+import vhky.algorithm.data.ImageCursor
 
 
 /**
@@ -13,7 +13,6 @@ import vhky.algorithm.data.color.GrayScaleFactory
 data class ConvolutionKernel(val data : List<Double>)
 {
 	val size : Int = Math.sqrt(data.size.toDouble()).toInt()
-	
 	init
 	{
 		require(size * size == data.size)
@@ -21,26 +20,13 @@ data class ConvolutionKernel(val data : List<Double>)
 	}
 	val center by lazy { size / 2 }
 	operator fun get(x : Int, y : Int) = data[x + y * size]
+	val indices by lazy { (0..size - 1).let { bound -> bound.flatMap { x -> bound.map { y -> x to y } } } }
 }
 
-fun convolvePoint(imageData : ImageData, kernel : ConvolutionKernel, x : Int, y : Int) : Double
-{
-	var sum = 0.0
-	for (kx in (0..kernel.size - 1))
-	{
-		for (ky in 0..kernel.size - 1)
-		{
-			sum += (imageData[x - kernel.center + kx, y - kernel.center + ky]
-					as GrayScaleFactory.GrayScale).grayScale * kernel[kx, ky]
-		}
-	}
-	return sum
-}
+fun convolvePoint(data : ColorChannel, cursor : ImageCursor, kernel : ConvolutionKernel) = kernel.indices
+		.map { (kx, ky) -> data[cursor.x - kernel.center + kx, cursor.y - kernel.center + ky] * kernel[kx, ky] }
+		.sum()
 
-fun convolve(imageData : ImageData, kernel : ConvolutionKernel)
-{
-	val backup = ImageData(imageData.width, imageData.height)
-	imageData.forEachIndexed { index, color -> backup[index] = color }
-	imageData.forEachXY { (x, y) -> imageData[x, y] = GrayScaleFactory.GrayScale(convolvePoint(backup, kernel, x, y)) }
-}
-operator fun ImageData.timesAssign(kernel : ConvolutionKernel) = convolve(this, kernel)
+fun convolve(data : ColorChannel, kernel : ConvolutionKernel) = ColorChannel(data.size).apply { data.size.forEach { this[it] = convolvePoint(data, it, kernel) } }
+operator fun ColorChannel.times(kernel : ConvolutionKernel) = convolve(this, kernel)
+operator fun ColorChannel.timesAssign(kernel : ConvolutionKernel) = this.set(this * kernel)

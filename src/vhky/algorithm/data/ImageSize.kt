@@ -14,6 +14,11 @@ data class ImageSize(val width : Int, val height : Int) : Iterable<ImageCursor>
 	{
 		val Image.size get() = ImageSize(width.toInt(), height.toInt())
 	}
+	init
+	{
+		require(width > 0)
+		require(height > 0)
+	}
 	val size = width * height
 	override fun iterator() = object : Iterator<ImageCursor>
 	{
