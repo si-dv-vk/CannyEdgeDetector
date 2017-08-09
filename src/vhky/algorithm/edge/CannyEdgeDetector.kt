@@ -1,6 +1,7 @@
-package vhky.algorithm
+package vhky.algorithm.edge
 
 import javafx.scene.image.Image
+import vhky.algorithm.*
 import vhky.algorithm.data.ImageData
 import vhky.algorithm.data.color.Edge
 import vhky.algorithm.data.color.GrayScaleFactory
@@ -9,7 +10,7 @@ import vhky.algorithm.data.color.asGray
 import java.util.*
 
 /**
- * No Description
+ * The main algorithm pipeline
  *
  * Created at 9:42 2017/8/3
  * @author VHKY
@@ -63,7 +64,7 @@ object CannyEdgeDetector
 	private val sqrt2 = Math.sqrt(2.0)
 	private val SobelX = ConvolutionKernel(listOf(
 			-1.0, 0.0, 1.0,
-			-sqrt2 ,0.0, sqrt2,
+			-sqrt2, 0.0, sqrt2,
 			-1.0, 0.0, 1.0
 	).map { it / (2 + sqrt2) })
 	private val SobelY = ConvolutionKernel(listOf(

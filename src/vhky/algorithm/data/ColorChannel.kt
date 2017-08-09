@@ -1,12 +1,12 @@
 package vhky.algorithm.data
 
 /**
- * No Description
+ * Image data container
  *
  * Created at 9:48 2017/8/9
  * @author VHKY
  */
-data class ColorChannel(private val data : DoubleArray, val size : ImageSize)
+data class ColorChannel(private val data : DoubleArray, val size : ImageSize) : Iterable<Double>
 {
 	init
 	{
@@ -17,5 +17,7 @@ data class ColorChannel(private val data : DoubleArray, val size : ImageSize)
 		return data == other
 	}
 	override fun hashCode() = data.hashCode()
-	
+	operator fun get(cursor : ImageCursor) = data[cursor.index]
+	operator fun set(cursor : ImageCursor, value : Double) = data.set(cursor.index, value)
+	override fun iterator() = data.iterator()
 }

@@ -15,7 +15,7 @@ import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import vhky.Configuration
-import vhky.algorithm.CannyEdgeDetector
+import vhky.algorithm.edge.CannyEdgeDetector
 import vhky.algorithm.data.ImageData
 import vhky.algorithm.data.color.GrayScaleFactory
 import vhky.foundation.Controller

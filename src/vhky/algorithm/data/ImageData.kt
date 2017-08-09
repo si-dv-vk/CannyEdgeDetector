@@ -7,7 +7,9 @@ import vhky.algorithm.data.color.ColorFactory
 import vhky.algorithm.data.color.GrayScaleFactory
 
 /**
- * No Description
+ * Class used to deposit separate color channels.
+ * Provide support for converting image to my data container.
+ * Provide support for synthesizing image with stored image data
  *
  * Created at 18:46 2017/7/31
  * @author VHKY

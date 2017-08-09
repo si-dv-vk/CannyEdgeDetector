@@ -3,7 +3,7 @@ package vhky.algorithm.data
 import javafx.scene.image.Image
 
 /**
- * No Description
+ * Describing the image size, provide iteration support
  *
  * Created at 9:53 2017/8/9
  * @author VHKY
