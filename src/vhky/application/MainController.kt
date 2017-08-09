@@ -14,6 +14,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
+import vhky.Configuration
 import vhky.algorithm.CannyEdgeDetector
 import vhky.algorithm.data.ImageData
 import vhky.algorithm.data.color.GrayScaleFactory
@@ -133,6 +134,6 @@ class MainController : Controller()
 		rightImage.image = WritableImage(image.pixelReader, image.width.toInt(), image.height.toInt())
 	}
 	@FXML private fun onSave() = thread{ ImageIO.write(SwingFXUtils.fromFXImage(rightImage.image, null), "png",
-			File("""C:\Users\si_dv\Desktop\test_${strongThreshold.text}_${weakThreshold.text}.png""").apply { if (!exists()) createNewFile() }) }
+			File(Configuration.TestImageOutputDir, """test_${strongThreshold.text}_${weakThreshold.text}.png""").apply { if (!exists()) createNewFile() }) }
 	
 }
