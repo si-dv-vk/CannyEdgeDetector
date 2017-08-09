@@ -1,4 +1,6 @@
-package vhky.algorithm
+package vhky.algorithm.despeckle
+
+import vhky.algorithm.convolution.ConvolutionKernel
 
 /**
  * No Description

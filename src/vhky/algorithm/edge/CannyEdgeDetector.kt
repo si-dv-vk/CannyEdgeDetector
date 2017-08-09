@@ -2,11 +2,15 @@ package vhky.algorithm.edge
 
 import javafx.scene.image.Image
 import vhky.algorithm.*
+import vhky.algorithm.convolution.ConvolutionKernel
+import vhky.algorithm.convolution.timesAssign
 import vhky.algorithm.data.ImageData
 import vhky.algorithm.data.color.Edge
 import vhky.algorithm.data.color.GrayScaleFactory
 import vhky.algorithm.data.color.asEdge
 import vhky.algorithm.data.color.asGray
+import vhky.algorithm.despeckle.EdgePreservingFilter
+import vhky.algorithm.despeckle.gaussianKernel
 import java.util.*
 
 /**

@@ -1,10 +1,13 @@
-package vhky.algorithm
+package vhky.algorithm.despeckle
 
+import vhky.algorithm.adjacent
 import vhky.algorithm.data.ImageData
 import vhky.algorithm.data.color.asGray
 
 /**
- * No Description
+ * Algorithm described in 10.1109/WCSE.2009.718.
+ *
+ * Hugely consume time when the image is large.
  *
  * Created at 19:02 2017/8/8
  * @author VHKY
@@ -14,7 +17,7 @@ object EdgePreservingFilter
 {
 	fun process(data : ImageData, iterationTime : Int, h : Double) : ImageData
 	{
-		println("EPF Starts")
+		println("EPF Starts: 0 / $iterationTime")
 		var f = data.copy()
 		repeat(iterationTime)
 		{

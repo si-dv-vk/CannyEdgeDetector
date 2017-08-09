@@ -1,4 +1,4 @@
-package vhky.algorithm
+package vhky.algorithm.convolution
 
 import vhky.algorithm.data.ImageData
 import vhky.algorithm.data.color.GrayScaleFactory

@@ -1,4 +1,4 @@
-package vhky.algorithm
+package vhky.algorithm.hull
 
 /**
  * No Description
