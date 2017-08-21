@@ -15,9 +15,8 @@ import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import vhky.Configuration
+import vhky.algorithm.data.GrayScaleFactory
 import vhky.algorithm.edge.CannyEdgeDetector
-import vhky.algorithm.data.ImageData
-import vhky.algorithm.data.color.GrayScaleFactory
 import vhky.foundation.Controller
 import java.io.File
 import javax.imageio.ImageIO
@@ -102,7 +101,7 @@ class MainController : Controller()
 			{
 				val _image = CannyEdgeDetector.postprocess(it,
 						{ it[(it.size * strongThreshold.text.toDouble()).toInt()] to
-								it[(it.size * strongThreshold.text.toDouble()).toInt()] / weakThreshold.text.toDouble() }).toImage()
+								it[(it.size * strongThreshold.text.toDouble()).toInt()] / weakThreshold.text.toDouble() }).let { GrayScaleFactory.toImage(it) }
 				Platform.runLater()
 				{
 					rightImage.image = _image
@@ -121,7 +120,7 @@ class MainController : Controller()
 		prepare.isDisable = true
 		thread()
 		{
-			temp = CannyEdgeDetector.preprocess(ImageData.fromImage(rightImage.image, GrayScaleFactory))
+			temp = CannyEdgeDetector.preprocess(GrayScaleFactory.fromImage(rightImage.image))
 			Platform.runLater()
 			{
 				prepare.isDisable = false

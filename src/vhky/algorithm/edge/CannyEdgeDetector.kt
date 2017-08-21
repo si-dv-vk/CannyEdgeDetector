@@ -3,11 +3,10 @@ package vhky.algorithm.edge
 import javafx.scene.image.Image
 import vhky.algorithm.adjacent
 import vhky.algorithm.convolution.ConvolutionKernel
+import vhky.algorithm.convolution.timesAssign
+import vhky.algorithm.data.GrayScaleFactory
+import vhky.algorithm.data.ImageCursor
 import vhky.algorithm.data.ImageData
-import vhky.algorithm.data.color.Edge
-import vhky.algorithm.data.color.GrayScaleFactory
-import vhky.algorithm.data.color.asEdge
-import vhky.algorithm.data.color.asGray
 import vhky.algorithm.despeckle.EdgePreservingFilter
 import vhky.algorithm.despeckle.gaussianKernel
 import java.util.*
@@ -34,8 +33,8 @@ object CannyEdgeDetector
 		 * 7. Track edge by hysteresis
 		 * 8. Finally, Convert the image back - Checked
 		 */
-		val data = ImageData.fromImage(image, GrayScaleFactory)
-		return pipeline(data).toImage()
+		val data = GrayScaleFactory.fromImage(image)
+		return GrayScaleFactory.toImage(pipeline(data))
 	}
 	private fun pipeline(data : ImageData) : ImageData
 	{
@@ -50,7 +49,7 @@ object CannyEdgeDetector
 	class PreprocessResult internal constructor(internal val data : Pair<ImageData, List<Double>>)
 	fun preprocess(data : ImageData) : PreprocessResult
 	{
-		val _data = SpeckleFilter(data)
+		val _data = DespeckleFilter(data)
 		var (intensity, direction) = getIntensityGradients(_data)
 		intensity = nonMaximumSuppression(intensity, direction)
 		return PreprocessResult(intensity to sortEdges(intensity))
@@ -63,7 +62,7 @@ object CannyEdgeDetector
 		return _data
 	}
 	private val GaussianConvolutionKernel = gaussianKernel(15)
-	private fun SpeckleFilter(data : ImageData) : ImageData = EdgePreservingFilter.process(data, 5, 3.0)
+	private fun DespeckleFilter(data : ImageData) : ImageData = EdgePreservingFilter.process(data, 3, 3.0)
 	private val sqrt2 = Math.sqrt(2.0)
 	private val SobelX = ConvolutionKernel(listOf(
 			-1.0, 0.0, 1.0,
@@ -77,32 +76,40 @@ object CannyEdgeDetector
 	).map { it / (2 + sqrt2) })
 	private fun getIntensityGradients(data : ImageData) : Pair<ImageData, ImageData>
 	{
-		val sx = ImageData(data.width, data.height)
-		val sy = ImageData(data.width, data.height)
+		println("Sobel starts")
+		val startTime = System.currentTimeMillis()
+		val sx = data.copy()
+		val sy = data.copy()
 		val intensity = ImageData(data.width, data.height)
 		val direction = ImageData(data.width, data.height)
-		data.forEachIndexed { index, color -> sx[index] = color; sy[index] = color }
-		intensity.data.indices.forEach { intensity[it] = GrayScaleFactory.GrayScale(Math.hypot(sy[it].asGray, sx[it].asGray)) }
-		direction.data.indices.forEach { direction[it] = GrayScaleFactory.GrayScale(Math.atan2(sy[it].asGray, sx[it].asGray)) }
+		sx *= SobelX
+		sy *= SobelY
+		intensity.size.forEach { intensity[it] = Math.hypot(sy[it], sx[it]) }
+		direction.size.forEach { direction[it] = Math.atan2(sy[it], sx[it]) }
+		println("Sobel finishes, time = ${System.currentTimeMillis() - startTime}ms")
 		return intensity to direction
 	}
 	private val boundaries = List(4, { Math.PI * (-3.0 / 8.0 + 0.25 * it)})
 	private fun nonMaximumSuppression(intensity : ImageData, direction : ImageData) : ImageData
 	{
+		val startTime = System.currentTimeMillis()
+		println("Non-maximum suppression starts")
 		var temp : Pair<Pair<Int, Int>, Pair<Int, Int>>
 		var positionList : List<Pair<Int, Int>>
 		val suppressedIntensity = intensity.copy()
 		
 		direction.forEachXY()
 		{
-			temp = getDirection((direction[it] as GrayScaleFactory.GrayScale).grayScale).operation(it)
-			positionList = listOf(temp.first, it, temp.second)
-			if (positionList.map { intensity[it].asGray }.let { (it[0] < it[1]) == (it[1] < it[2]) })
-				suppressedIntensity[it] = GrayScaleFactory.GrayScale.Black
+			temp = getDirection(direction[it]).operation(it)
+			positionList = listOf(temp.first, it.x to it.y, temp.second)
+			if (positionList.map { intensity[it] }.let { (it[0] < it[1]) == (it[1] < it[2]) })
+				suppressedIntensity[it] = 0.0
 		}
+		
+		println("Non-Maximum suppression finishes, time = ${System.currentTimeMillis() - startTime}ms")
 		return suppressedIntensity
 	}
-	private enum class Direction(inline val operation : (Pair<Int, Int>) -> Pair<Pair<Int, Int>, Pair<Int, Int>>)
+	private enum class Direction(inline val operation : (ImageCursor) -> Pair<Pair<Int, Int>, Pair<Int, Int>>)
 	{
 		N2S({ (x, y) -> (x to y + 1) to (x to y - 1) }),
 		E2W({ (x, y) -> (x - 1 to y) to (x + 1 to y) }),
@@ -117,27 +124,27 @@ object CannyEdgeDetector
 		else -> Direction.N2S
 	}
 	private val Double.abs get() = Math.abs(this)
-	private fun sortEdges(data : ImageData) = data.map { it.asGray.abs }.sorted()
+	private fun sortEdges(data : ImageData) = data.map { it.abs }.sorted()
 	private fun doubleThreshold(data : ImageData, sortedEdge : List<Double>, threshold : (List<Double>) -> Pair<Double, Double>)
 	{
 		val (strong, weak) = threshold(sortedEdge)
 		data.forEachIndexed { index, color -> data[index] = when
 		{
-			color.asGray.abs > strong -> Edge.Strong
-			color.asGray.abs < weak -> Edge.None
-			else -> Edge.Weak
+			color.abs > strong -> 255.0
+			color.abs < weak -> 0.0
+			else -> 128.0
 		}}
 	}
 	private fun trackEdge(data : ImageData)
 	{
 		val originalStrongPoints = emptyList<Pair<Int, Int>>().toMutableList()
-		data.forEachXY{ it.takeIf { data[it].asEdge == Edge.EdgeType.Strong }?.let { originalStrongPoints.add(it) }}
+		data.forEachXY{ it.takeIf { data[it] == 255.0 }?.let { originalStrongPoints.add(it.x to it.y) }}
 		originalStrongPoints.forEach{ extendSingleStrongPoint(data, it) }
-		data.data.indices.forEach { if(data[it].asEdge == Edge.EdgeType.Weak) data[it] = Edge.None }
+		data.size.forEach { if(data[it] == 128.0) data[it] = 0.0 }
 	}
 	private fun extendSingleStrongPoint(data : ImageData, position : Pair<Int, Int>)
 	{
-		if (data[position].asEdge != Edge.EdgeType.Strong) return
+		if (data[position] != 255.0) return
 		val stack = Stack<Pair<Int, Int>>().apply { push(position) }
 		var param : Pair<Int, Int>
 		while (stack.isNotEmpty())
@@ -145,9 +152,9 @@ object CannyEdgeDetector
 			param = stack.pop()
 			adjacent(param).forEach()
 			{
-				if (data[it].asEdge == Edge.EdgeType.Weak)
+				if (data[it] == 128.0)
 				{
-					data[it] = Edge.Strong
+					data[it] = 255.0
 					stack.push(it)
 				}
 			}

@@ -1,7 +1,7 @@
 package vhky.algorithm.convolution
 
-import vhky.algorithm.data.ColorChannel
 import vhky.algorithm.data.ImageCursor
+import vhky.algorithm.data.ImageData
 
 
 /**
@@ -20,13 +20,13 @@ data class ConvolutionKernel(val data : List<Double>)
 	}
 	val center by lazy { size / 2 }
 	operator fun get(x : Int, y : Int) = data[x + y * size]
-	val indices by lazy { (0..size - 1).let { bound -> bound.flatMap { x -> bound.map { y -> x to y } } } }
+	val indices by lazy { (0 until size).let { bound -> bound.flatMap { x -> bound.map { y -> x to y } } } }
 }
 
-fun convolvePoint(data : ColorChannel, cursor : ImageCursor, kernel : ConvolutionKernel) = kernel.indices
+fun convolvePoint(data : ImageData, cursor : ImageCursor, kernel : ConvolutionKernel) = kernel.indices
 		.map { (kx, ky) -> data[cursor.x - kernel.center + kx, cursor.y - kernel.center + ky] * kernel[kx, ky] }
 		.sum()
 
-fun convolve(data : ColorChannel, kernel : ConvolutionKernel) = ColorChannel(data.size).apply { data.size.forEach { this[it] = convolvePoint(data, it, kernel) } }
-operator fun ColorChannel.times(kernel : ConvolutionKernel) = convolve(this, kernel)
-operator fun ColorChannel.timesAssign(kernel : ConvolutionKernel) = this.set(this * kernel)
+fun convolve(data : ImageData, kernel : ConvolutionKernel) = ImageData(data.size).apply { data.size.forEach { this[it] = convolvePoint(data, it, kernel) } }
+operator fun ImageData.times(kernel : ConvolutionKernel) = convolve(this, kernel)
+operator fun ImageData.timesAssign(kernel : ConvolutionKernel) = this.set(this * kernel)

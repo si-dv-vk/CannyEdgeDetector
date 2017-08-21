@@ -13,7 +13,7 @@
 	</HBox>
 	<HBox fx:id="bottomPane" alignment="CENTER" spacing="10.0">
 		<Button fx:id="prepare" onAction="#onPrepare" text="Prepare"/>
-		<Button fx:id="fuckIt" onAction="#onFuckIt" text="Fuck It"/>
+		<Button fx:id="fuckIt" onAction="#onFuckIt" text="Process"/>
 		<Button onAction="#onRestore" text="Restore"/>
 		<Button onAction="#onSave" text="Save"/>
 		<TextField fx:id="strongThreshold" text="0.97"/>

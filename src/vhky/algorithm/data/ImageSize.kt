@@ -23,8 +23,8 @@ data class ImageSize(val width : Int, val height : Int) : Iterable<ImageCursor>
 	override fun iterator() = object : Iterator<ImageCursor>
 	{
 		val cursor = ImageCursor(this@ImageSize)
-		private var index = 0
-		override fun hasNext() = index < cursor.imageSize.size
-		override fun next() = cursor.apply { cursor.index = index++ }
+		private var _index = 0
+		override fun hasNext() = _index < cursor.imageSize.size
+		override fun next() = cursor.apply { index = _index++ }
 	}
 }
