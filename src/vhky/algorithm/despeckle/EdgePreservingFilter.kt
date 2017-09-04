@@ -22,10 +22,12 @@ object EdgePreservingFilter
 		repeat(iterationTime)
 		{
 			val _f = f.copy()
+			val _wCache = f.copy()
+			_wCache.forEachXY { _wCache[it] = w(f, it.pair, h) }
 			_f.forEachXY()
 			{
 				var sum = 0.0
-				_f[it] = adjacent(it).map { w(f, it, h).apply { sum += this } * f[it] }.reduce { acc, d ->  acc + d } / sum
+				_f[it] = adjacent(it).map { _wCache[it].apply { sum += this } * f[it] }.sum() / sum
 			}
 			f = _f
 			println("EPF Progress: ${it + 1} / $iterationTime, ${System.currentTimeMillis() - start}ms")

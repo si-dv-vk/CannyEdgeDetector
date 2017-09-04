@@ -50,4 +50,5 @@ class ImageCursor(val imageSize : ImageSize)
 	{
 		index = borderConstraint(x, Which.X) + borderConstraint(y, Which.Y) * imageSize.width
 	}
+	val pair get() = x to y
 }
